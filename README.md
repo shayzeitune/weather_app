@@ -1,1 +1,2 @@
-Shows you the weather
+# Weather app
+shows you the weather
