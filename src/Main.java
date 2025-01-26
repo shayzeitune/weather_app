@@ -7,6 +7,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -18,14 +19,16 @@ public class Main {
         LocalDate localDate = LocalDate.now();
         LocalTime now = LocalTime.now();
         System.out.println(now);
+        System.out.println(isRain(getForecastData()));
 
 
-/// Print the rain data array
-        System.out.println("Rain data for " + targetLocation + ": " + getRainData());
+/// Print the data array
+        System.out.println(" Forecasts data for " + targetLocation + ": " + getForecastData());
 ///   if there is a rain in somewhere in the future in the location chosen
-        if (isRain(getRainData())){
-
-        }
+//        if (isRain(getForecastData())){
+//            System.out.println("hi");
+//
+//        }
 
     }
 
@@ -37,9 +40,10 @@ public class Main {
     }
 
 
-    public static ArrayList<Double> getRainData() throws IOException, ParserConfigurationException, SAXException {
+    public static ArrayList<Forecast> getForecastData() throws IOException, ParserConfigurationException, SAXException {
         Document doc = getParsedDoc();
-        ArrayList<Double> rainData = new ArrayList<>(); // To store rain data
+//        ArrayList<Double> rainData = new ArrayList<>(); // To store rain data
+        ArrayList<Forecast> forecastsData = new ArrayList<>(); //to store all the data about a forecast-time, rain, temp
 
         NodeList locations = doc.getElementsByTagName("Location"); // Get all <Location> elements
         for (int i = 0; i < locations.getLength(); i++) {
@@ -52,21 +56,26 @@ public class Main {
                 NodeList forecasts = location.getElementsByTagName("Forecast");
                 for (int j = 0; j < forecasts.getLength(); j++) {
                     Element forecast = (Element) forecasts.item(j);
-
-                    // Extract the <Rain> element value and add to the array
+                    // Extract the elements values
                     String rainValue = forecast.getElementsByTagName("Rain").item(0).getTextContent();
-                    rainData.add(Double.parseDouble(rainValue));
+                    String time = forecast.getElementsByTagName("ForecastTime").item(0).getTextContent();
+                    String temperature = forecast.getElementsByTagName("Temperature").item(0).getTextContent();
+                    String humidity = forecast.getElementsByTagName("RelativeHumidity").item(0).getTextContent();
+                    // create a forecast object and add to the array
+                    Forecast forecast1 = new Forecast(time,Double.parseDouble(rainValue), Double.parseDouble(temperature), humidity);
+                    forecastsData.add(forecast1);
+//                    rainData.add(Double.parseDouble(rainValue));
                 }
                 break; // Exit the loop once the location is found
             }
         }
-        return rainData;
+        return forecastsData;
 
     }
 
-    public static Boolean isRain(ArrayList<Double> rainData){
-       for (int i = 0; i< rainData.size(); i++)
-           if (rainData.get(i) > 0) {
+    public static Boolean isRain(ArrayList<Forecast> forecastData){
+       for (int i = 0; i< forecastData.size(); i++)
+           if (forecastData.get(i).rain > 0){
                return true;
            }
 
